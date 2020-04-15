@@ -1,0 +1,8 @@
+config.env
+docker.env
+*.sqlite3
+static
+media
+.idea
+*.pyc
+docker/volumes

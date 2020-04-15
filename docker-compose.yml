@@ -1,0 +1,27 @@
+version: '3.6'
+
+services:
+  db:
+    image: postgres:12
+    env_file: docker.env
+
+    volumes:
+      - ./docker/volumes:/var/lib/postgresql/data
+
+  web:
+    environment:
+      PYTHONDONTWRITEBYTECODE: 1
+
+    env_file: docker.env
+    build: .
+    command: ['sh', 'service.web.sh']
+
+    volumes:
+      - ./project/:/code/
+      - ./docker/service.web.sh:/code/service.web.sh
+
+    links:
+      - db
+
+    ports:
+      - "8000:8000"
