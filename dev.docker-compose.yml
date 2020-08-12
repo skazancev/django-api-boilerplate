@@ -3,8 +3,10 @@ version: '3.6'
 services:
   db:
     image: postgres:12
-    env_file: docker.env
-
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=dbname
     volumes:
       - ./docker/volumes:/var/lib/postgresql/data
 
@@ -12,7 +14,6 @@ services:
     environment:
       PYTHONDONTWRITEBYTECODE: 1
 
-    env_file: docker.env
     build: .
     command: ['sh', 'service.web.sh']
 
