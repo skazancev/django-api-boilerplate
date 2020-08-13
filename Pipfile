@@ -4,6 +4,9 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+django-debug-toolbar = "*"
+pytest-django = "*"
+factory-boy = "*"
 
 [packages]
 django = "*"
@@ -14,6 +17,20 @@ django-environ = "*"
 django-json-widget = "*"
 django-choices = "*"
 ipython = "*"
+celery = "*"
+django-simple-history = "*"
+django-better-admin-arrayfield = "*"
+django-ckeditor = "*"
+django-model-utils = "*"
+django-ipware = "*"
+drf-yasg = "*"
+python-slugify = "*"
+django-admin-sortable = "*"
+flower = "*"
+sentry-sdk = "*"
+django-celery-results = "*"
+django-celery-beat = "*"
+django-redis-cache = "*"
 
 [requires]
 python_version = "3.8"

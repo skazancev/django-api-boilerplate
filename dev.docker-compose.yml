@@ -1,28 +1,105 @@
-version: '3.6'
+version: '3.7'
+
+
+volumes:
+  project-media:
+    name: project-media
+  project-static:
+    name: project-static
+  project-postgres-depo:
+    name: project-postgres-depo
+  project-redis-depo:
+    name: project-redis-depo
+  project-rabbit-depo:
+    name: project-rabbit-depo
+
+
+networks:
+  project:
+    name: project
+
+
+x-default:
+  &default
+  build:
+    context: .
+    dockerfile: docker/development/Dockerfile
+    args:
+      ENVIRONMENT: development
+  volumes:
+    - ./project:/code
+    - project-static:/code/static
+    - project-media:/code/media
+  depends_on:
+    - db
+    - redis
+    - rabbit
+  logging:
+    options:
+      max-size: "10m"
+      max-file: "5"
+  networks:
+    - project
+
 
 services:
   db:
     image: postgres:12
+    container_name: project_db
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=dbname
     volumes:
-      - ./docker/volumes:/var/lib/postgresql/data
+      - project-postgres-depo:/var/lib/postgresql/data
+    networks:
+      - project
+
+  redis:
+    image: redis
+    container_name: project_redis
+    volumes:
+      - project-redis-depo:/data
+    networks:
+      - project
+
+  rabbit:
+    image: rabbitmq
+    container_name: project_rabbit
+    volumes:
+      - project-rabbit-depo:/var/lib/rabbitmq
+    networks:
+      - project
 
   web:
-    environment:
-      PYTHONDONTWRITEBYTECODE: 1
-
-    build: .
-    command: ['sh', 'service.web.sh']
-
-    volumes:
-      - ./project/:/code/
-      - ./docker/service.web.sh:/code/service.web.sh
-
-    links:
-      - db
-
+    << : *default
+    container_name: project_web
+    command: python manage.py runserver 0.0.0.0:8000
     ports:
       - "8000:8000"
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/utils/health/"]
+      interval: 10s
+      timeout: 30s
+      retries: 20
+
+  celery:
+    << : *default
+    container_name: project_celery
+    command: celery -A celeryapp.app worker -B -l INFO
+
+  celery_flower:
+    << : *default
+    container_name: project_flower
+    command: flower -A celeryapp.app --conf=flowerconfig.py
+    ports:
+      - "5555:5555"
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: project_mailhog
+    ports:
+      - "8025:8025"
+    networks:
+      - project
