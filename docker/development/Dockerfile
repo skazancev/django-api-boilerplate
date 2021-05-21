@@ -1,8 +1,9 @@
-FROM python:3.8-slim
+FROM python:3.9-slim
 
 ENV PYTHONUNBUFFERED="1" \
     LC_ALL="C.UTF-8" \
-    LANG="C.UTF-8"
+    LANG="C.UTF-8" \
+    PIP_NO_CACHE_DIR=false
 
 ARG ENVIRONMENT
 
@@ -18,10 +19,10 @@ WORKDIR /code/
 
 COPY Pipfile* ./
 
-RUN pip install -U pip pipenv gunicorn \
+RUN pip --no-cache-dir install -U pip pipenv gunicorn \
     && case $ENVIRONMENT in \
-          dev*) pipenv install --system --dev;; \
-          *)    pipenv install --system;; \
+          dev*) pipenv install --system --dev --clear;; \
+          *)    pipenv install --system --clear;; \
         esac \
     && pip uninstall -y pipenv virtualenv virtualenv-clone \
     && rm -Rf /root/.cache/pip/

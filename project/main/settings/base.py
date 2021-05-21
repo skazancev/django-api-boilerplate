@@ -10,14 +10,18 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
-import environ
 import logging
+
+import environ
+
+from .env import env
+
 from utils.i18n import builtins_install
 
 builtins_install()
 
-env = environ.Env(DEBUG=(bool, False))
-environ.Env.read_env('config.env')
+ENVIRONMENT = env('ENVIRONMENT', default='development')
+COMPANY_NAME = env('COMPANY_NAME', default='Your company')
 
 BASE_DIR = environ.Path(__file__) - 1
 
@@ -34,7 +38,7 @@ SITE_ID = 1
 
 # Application definition
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    'apps.AdminConfig',  # replaces 'django.contrib.admin'
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -52,11 +56,12 @@ INSTALLED_APPS = [
     'ckeditor_uploader',
     'django_better_admin_arrayfield',
     'simple_history',
+    'phonenumber_field',
 
     'api',
-    'apps',
     'apps.accounts.apps.AccountsConfig',
-    'apps.emails.apps.EmailsConfig',
+    'apps.bots.apps.BotsConfig',
+    'apps.communication.apps.CommunicationConfig',
 ]
 
 MIDDLEWARE = [
@@ -285,3 +290,11 @@ if DEBUG:
 CACHES = {
     'default': env.cache()
 }
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# SLACK
+SLACK_ENABLED = env.bool('SLACK_ENABLED', default=False)
+SLACK_TOKEN = env('SLACK_TOKEN', default='')
+
+SENDGRID_ENABLED = env.bool('SENDGRID_ENABLED', default=False)

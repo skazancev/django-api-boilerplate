@@ -7,6 +7,7 @@ verify_ssl = true
 django-debug-toolbar = "*"
 pytest-django = "*"
 factory-boy = "*"
+pytest-sugar = "*"
 
 [packages]
 django = "*"
@@ -26,11 +27,15 @@ django-ipware = "*"
 drf-yasg = "*"
 python-slugify = "*"
 django-admin-sortable = "*"
-flower = "*"
 sentry-sdk = "*"
 django-celery-results = "*"
 django-celery-beat = "*"
 django-redis-cache = "*"
+django-phonenumber-field = {extras = ["phonenumberslite"],version = "*"}
+flower = {git = "https://github.com/mher/flower.git",editable = true}
+sendgrid-python = "*"
+slackclient = "*"
+flake8 = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"

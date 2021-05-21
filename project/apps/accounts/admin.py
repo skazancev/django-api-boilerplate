@@ -2,8 +2,10 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.auth.forms import UserChangeForm as BaseUserChangeForm, ReadOnlyPasswordHashField
 from django.contrib.auth.models import Group as DjangoGroup
+from django.contrib.admin.sites import site as default_site
 
 from apps.accounts.models import User, Group
+from apps.bases.admin import BaseAdmin
 from utils.simple_history import CustomSimpleHistoryAdmin
 
 
@@ -12,7 +14,7 @@ class UserChangeForm(BaseUserChangeForm):
 
 
 @admin.register(User)
-class UserAdmin(CustomSimpleHistoryAdmin, DjangoUserAdmin):
+class UserAdmin(CustomSimpleHistoryAdmin, DjangoUserAdmin, BaseAdmin):
     form = UserChangeForm
     fieldsets = (
         (None, {'fields': ('email', 'password', 'first_name', 'last_name')}),
@@ -39,5 +41,5 @@ class GroupAdmin(admin.ModelAdmin):
     filter_horizontal = ('permissions',)
 
 
-admin.site.unregister(DjangoGroup)
+default_site.unregister(DjangoGroup)
 admin.site.register(Group, GroupAdmin)

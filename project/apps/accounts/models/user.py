@@ -6,10 +6,12 @@ from django.contrib.postgres.fields import CIEmailField
 from django.db import models
 from django.utils.http import int_to_base36
 from ipware import get_client_ip
+from phonenumber_field.modelfields import PhoneNumberField
 from simple_history.models import HistoricalRecords
 
 from apps.accounts import signals
-from utils.models import BaseModel
+from apps.bases.models import BaseModel
+from utils.fields import ActiveField
 
 
 class UserManager(BaseUserManager):
@@ -47,7 +49,9 @@ class User(BaseModel, AbstractBaseUser, PermissionsMixin):
     email = CIEmailField(unique=True, verbose_name=_('Адрес эл. почты'))
     first_name = models.CharField(max_length=100, null=True, blank=True,  verbose_name=_('Имя'))
     last_name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_('Фамилия'))
+    phone = PhoneNumberField(null=True, blank=False, verbose_name=_('Номер телефона'))
 
+    is_active = ActiveField()
     is_email_verified = models.BooleanField(default=False, verbose_name=_('Подтвержденный адрес эл. почты?'))
     is_staff = models.BooleanField(default=False, verbose_name=_('Статус персонала'))
 

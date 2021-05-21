@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from django.db import models, IntegrityError
 from django.utils import timezone
 
-from utils.models import BaseModel
+from apps.bases.models import BaseModel
 
 logger = logging.getLogger(__name__)
 

@@ -6,7 +6,7 @@ class SerializerUserMixin:
         super().__init__(*args, **kwargs)
         if self.instance and hasattr(self.instance, 'update_metadata'):
             self.instance.update_metadata(
-                user=self._user,
+                user=self._user if self._user and self._user.is_authenticated else None,
                 history_change_reason=self._request.path if self._request else self.__class__.__name__,
             )
 

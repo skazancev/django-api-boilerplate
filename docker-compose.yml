@@ -92,7 +92,7 @@ services:
   celery_flower:
     << : *default
     container_name: project_flower
-    command: flower -A celeryapp.app --conf=flowerconfig.py
+    command: flower -A celeryapp.app flower
     ports:
       - "5555:5555"
 

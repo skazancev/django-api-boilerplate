@@ -15,7 +15,6 @@ Including another URLconf
 """
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 from django.views.i18n import JavaScriptCatalog
@@ -23,27 +22,27 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
+from apps.bases.admin import admin_site
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include('api.urls')),
+    path('admin/', admin_site.urls),
+    path('api/', include('api.urls', namespace='api')),
     path('s/ckeditor/', include('ckeditor_uploader.urls')),
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
-    path('', include('public_urls')),
+    path('', include('public_urls', namespace='public')),
 ]
 
 if settings.DEBUG:
-    urlpatterns += [
-        *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
-    ]
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.SHOW_SWAGGER:
     schema_view = get_schema_view(
         openapi.Info(
-            title="Project API",
+            title="NBFit API",
             default_version='1',
             description="API системы управления контентом",
-            contact=openapi.Contact(email="admin@project"),
+            contact=openapi.Contact(email="admin@nbfit.local"),
         ),
         validators=['flex', 'ssv'],
         public=True,

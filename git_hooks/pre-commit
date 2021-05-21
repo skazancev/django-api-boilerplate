@@ -9,8 +9,8 @@ if [[ "$PY_FILES" != "" ]]; then
     echo "*** Running Python linter for the changed files list (flake8) ***"
     echo
     echo "Changed Python files list: "
-    echo "$PY_FILES" | xargs -I {} echo " —  {}"
+    echo "$PY_FILES" | xargs -I {} echo " -  {}"
     echo
 
-    flake8 --config flake8.ini ${PY_FILES}
+    pipenv run flake8 --config flake8.ini ${PY_FILES}
 fi

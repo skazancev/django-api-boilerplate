@@ -29,6 +29,15 @@ class GenericViewSet(BrowsableAPIRendererQuerySetFix, BaseGenericViewSet):
     lookup_field = 'uid'
     lookup_url_kwarg = 'uid'
 
+    def get_object(self):
+        obj = super().get_object()
+        if obj and hasattr(obj, 'update_metadata'):
+            obj.update_metadata(
+                user=self.request.user,
+                history_change_reason=self.request.path if self.request else self.__class__.__name__,
+            )
+        return obj
+
     @property
     def method(self):
         if self.action is not None:
