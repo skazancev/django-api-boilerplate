@@ -59,7 +59,7 @@ class CommunicationHistoryAdmin(BaseAdmin):
 
     def pretty_typeform(self, obj):
         formatter = HtmlFormatter(style='colorful')
-        data = json.dumps(obj.context, indent=2, ensure_ascii=False)
+        data = json.dumps(obj.user_flow_action.flow.context, indent=2, ensure_ascii=False)
         response = highlight(data.encode('utf-8'), JsonLexer(), formatter)
         style = "<style>" + formatter.get_style_defs() + "</style><br>"
         return mark_safe(style + response)

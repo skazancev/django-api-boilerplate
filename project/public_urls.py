@@ -1,6 +1,7 @@
 import urllib.parse
 
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.http import HttpResponseNotFound
 from django.urls import reverse, path
 
@@ -12,11 +13,16 @@ def http404_view(request, *args, **kwargs):  # pragma: no cover
     return HttpResponseNotFound()
 
 
-def build_public_url(url_name, **kwargs):
-    url = reverse(f'public:{url_name}', **kwargs)
-    schema = 'https' if settings.PRODUCTION else 'http'
+def get_base_url():
+    return f'{settings.BASE_URL_SCHEMA}://{Site.objects.get_current().domain}'
 
-    return urllib.parse.urljoin(f'{schema}://{settings.DOMAIN_NAME}', url)
+
+def make_url_absolute(url):
+    return urllib.parse.urljoin(get_base_url(), url)
+
+
+def build_public_url(url_name, **kwargs):
+    return make_url_absolute(reverse(f'public:{url_name}', **kwargs))
 
 
 def password_reset_by_token_url(*, uidb36, token):
