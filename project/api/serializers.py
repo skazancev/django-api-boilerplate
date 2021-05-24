@@ -34,13 +34,4 @@ class Serializer(SerializerUserMixin,
 class ModelSerializer(SerializerUserMixin,
                       serializers.ModelSerializer):
     """Use it instead of rest_framework.ModelSerializer"""
-
-    def get_fields(self, *args, **kwargs):
-        fields = super().get_fields(*args, **kwargs)
-        fields_to_read_only = ['uid', 'created_at']
-
-        for field in fields_to_read_only:
-            if field in fields:
-                fields[field].read_only = True
-
-        return fields
+    pass

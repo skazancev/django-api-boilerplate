@@ -26,9 +26,6 @@ class BrowsableAPIRendererQuerySetFix(object):
 
 
 class GenericViewSet(BrowsableAPIRendererQuerySetFix, BaseGenericViewSet):
-    lookup_field = 'uid'
-    lookup_url_kwarg = 'uid'
-
     def get_object(self):
         obj = super().get_object()
         if obj and hasattr(obj, 'update_metadata'):
