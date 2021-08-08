@@ -44,7 +44,7 @@ x-default:
 
 services:
   db:
-    image: postgres:12
+    image: postgres:13
     container_name: project_db
     environment:
       - POSTGRES_USER=user

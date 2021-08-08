@@ -109,22 +109,47 @@ class GenericViewSet(BrowsableAPIRendererQuerySetFix, BaseGenericViewSet):
 
 
 class serializer:
-    def __init__(self, klass, *, validator=None, viewset=None, swagger_schema=None, response_status=status.HTTP_200_OK):
+    def __init__(self,
+                 klass,
+                 *,
+                 validator=None,
+                 viewset=None,
+                 swagger_schema=None,
+                 swagger_skip=False,
+                 response_status=status.HTTP_200_OK,
+                 swagger_serializer_kwargs=None):
         self.viewset = viewset
         self.klass = klass
         self.validator = validator or klass
         self.swagger_schema = swagger_schema or dict()
+        self.swagger_serializer_kwargs = swagger_serializer_kwargs or dict()
         self.response_status = response_status
+        self.swagger_skip = swagger_skip
+
+    _default_methods_mapping = {
+        'list': ['get'],
+        'create': ['post'],
+        'update': ['put'],
+        'partial_update': ['patch'],
+        'destroy': ['delete']
+    }
 
     def __call__(self, func):
-        mapping = getattr(func, 'mapping', {})
+        mapping = getattr(func, 'mapping', None)
+        if mapping is None:
+            mapping = self._default_methods_mapping[func.__name__]
+
         if any(method in mapping for method in ['put', 'patch', 'post', 'delete']):
-            self.swagger_schema.setdefault('request_body', self.validator or self.klass)
+            self.swagger_schema.setdefault('request_body', self.validator(**self.swagger_serializer_kwargs))
 
         if self.klass:
-            self.swagger_schema.setdefault('responses', {self.response_status: self.klass()})
+            self.swagger_schema.setdefault('responses', {
+                self.response_status: self.klass(**self.swagger_serializer_kwargs)
+            })
 
-        func = swagger_auto_schema(**self.swagger_schema)(func)
+        if not self.swagger_skip:
+            func = swagger_auto_schema(**self.swagger_schema)(func)
+
         func.serializer_class = self.klass
         func.validator_class = self.validator
 
@@ -144,4 +169,17 @@ def extra_permissions(permission_classes):
 
         return func
 
+    return decorator
+
+
+def swagger_queryset_error(queryset):
+    def decorator(get_queryset):
+        def _wrap(self):
+            try:
+                return get_queryset(self)
+            except Exception:
+                if settings.SHOW_SWAGGER and self.request.resolver_match.func.__name__ == 'SchemaView':
+                    return queryset
+                raise
+        return _wrap
     return decorator

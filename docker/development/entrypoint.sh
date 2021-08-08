@@ -6,7 +6,6 @@ cmd="$@"
 # configuration.
 
 
-
 function postgres_ready(){
 python << END
 import sys

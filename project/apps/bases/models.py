@@ -172,6 +172,10 @@ class BaseModel(TimeStampedModel, metaclass=BaseModelMeta):
     def _change_reason(self):
         return self._metadata.get('history_change_reason')
 
+    @_change_reason.setter
+    def _change_reason(self, value):
+        return self.update_metadata(history_change_reason=value)
+
     @property
     def lastmod(self):
         return self.modified
