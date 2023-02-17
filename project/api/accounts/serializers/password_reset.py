@@ -6,7 +6,7 @@ from rest_framework import serializers
 from api import messages
 from apps.accounts import signals
 from apps.accounts.tasks import send_password_reset_email
-from .mixins import TokenSerializer
+from .mixins import TokenValidationSerializer
 from ...serializers import Serializer
 
 
@@ -21,12 +21,16 @@ class PasswordResetSerializer(Serializer):
         return email
 
     def save(self):
-        send_password_reset_email.delay(user_id=self.user.id, next_url=self._request.GET.get('next'))
+        send_password_reset_email.delay(
+            user_id=self.user.id,
+            reset_type='token',
+            next_url=self._request.GET.get('next'),
+        )
 
         return self.user
 
 
-class PasswordResetConfirmSerializer(TokenSerializer):
+class PasswordResetConfirmSerializer(TokenValidationSerializer):
     password = serializers.CharField(trim_whitespace=False, write_only=True)
 
     def validate_password(self, password):

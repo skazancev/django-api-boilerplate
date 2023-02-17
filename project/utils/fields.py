@@ -80,9 +80,19 @@ class RoundedTimeField(models.TimeField):
 
 
 class ChoiceField(models.CharField):
-    def _find_max_length(self, choices):
-        return max([len(i) for i, _ in choices])
+    def __init__(self, choices, *args, **kwargs):
+        kwargs['max_length'] = max(len(value) for value, _ in choices)
+        super().__init__(choices=choices, *args, **kwargs)
 
-    def __init__(self, *args, choices, **kwargs):
-        kwargs.setdefault('max_length', self._find_max_length(choices))
-        super().__init__(*args, choices=choices, **kwargs)
+    @staticmethod
+    def is_value_method(name, value):
+        @property
+        def method(self):
+            return getattr(self, name) == value
+
+        return method
+
+    def contribute_to_class(self, cls, name, *args, **kwargs):
+        for code, label in self.choices:
+            setattr(cls, f'is_{name}_{code}', self.is_value_method(name, code))
+        super().contribute_to_class(cls, name, *args, **kwargs)

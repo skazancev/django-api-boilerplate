@@ -1,9 +1,9 @@
 from api.serializers import Serializer
 from apps.accounts import signals
-from .mixins import TokenSerializer
+from .mixins import TokenValidationSerializer
 
 
-class EmailConfirmSerializer(TokenSerializer, Serializer):
+class EmailConfirmSerializer(TokenValidationSerializer, Serializer):
     user = None
 
     def save(self, **kwargs):

@@ -39,10 +39,10 @@ if settings.DEBUG:
 if settings.SHOW_SWAGGER:
     schema_view = get_schema_view(
         openapi.Info(
-            title="NBFit API",
+            title="Project API",
             default_version='1',
             description="API системы управления контентом",
-            contact=openapi.Contact(email="admin@nbfit.local"),
+            contact=openapi.Contact(email="admin@example.com"),
         ),
         validators=['flex', 'ssv'],
         public=True,

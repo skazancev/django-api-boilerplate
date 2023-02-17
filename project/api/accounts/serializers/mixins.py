@@ -5,7 +5,7 @@ from api.serializers import Serializer
 from apps.accounts.tokens import user_token_generator
 
 
-class TokenSerializer(Serializer):
+class TokenValidationSerializer(Serializer):
     token = serializers.CharField(write_only=True)
     user = None
 

@@ -8,7 +8,6 @@ from apps.accounts.models import Token
 
 
 class LoginSerializer(Serializer):
-    supposed_user = None
     password = serializers.CharField(trim_whitespace=False)
     email = serializers.EmailField()
 
@@ -21,7 +20,7 @@ class LoginSerializer(Serializer):
         return attrs
 
     def save(self, **kwargs):
-        token = self.user.create_login_token_from_request(self._request, is_endless=True)
+        token = self.user.login_from_request(self._request, is_endless=True)
 
         signals.user_logged_in.send(sender=self.user.__class__, request=self._request, response=None, user=self.user)
 

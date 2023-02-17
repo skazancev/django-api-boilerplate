@@ -1,0 +1,46 @@
+[tool.poetry]
+name = "django-api-boilerplate"
+version = "0.1.0"
+description = ""
+authors = ["skazancev <stas.kazancev54@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "*"
+django-rest-framework = "*"
+requests = "*"
+psycopg2-binary = "*"
+django-environ = "*"
+django-json-widget = "*"
+django-choices = "*"
+ipython = "*"
+celery = "*"
+django-simple-history = "*"
+django-better-admin-arrayfield = "*"
+django-ckeditor = "*"
+django-model-utils = "*"
+django-ipware = "*"
+drf-yasg = "*"
+python-slugify = "*"
+django-admin-sortable = "*"
+sentry-sdk = "*"
+django-celery-results = "*"
+django-celery-beat = "*"
+django-redis-cache = "*"
+django-phonenumber-field = {extras = ["phonenumberslite"], version = "*"}
+flower = "*"
+sendgrid-python = "*"
+slackclient = "*"
+flake8 = "*"
+django-split-settings = "^1.2.0"
+klaviyo = "^3.1.6"
+
+[tool.poetry.dev-dependencies]
+django-debug-toolbar = "*"
+pytest-django = "*"
+factory-boy = "*"
+pytest-sugar = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

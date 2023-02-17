@@ -16,8 +16,8 @@ def send_email_confirmation(*, user_id):
 
 
 @app.task
-def send_password_reset_email(*, user_id, next_url=''):
-    emails.send_password_reset_email(user_id=user_id, next_url=next_url)
+def send_password_reset_email(*, user_id, reset_type, next_url=''):
+    emails.send_password_reset_email(user_id=user_id, reset_type=reset_type, next_url=next_url)
 
 
 @app.task

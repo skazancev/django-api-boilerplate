@@ -1,64 +1,70 @@
-import html
+from functools import cached_property
 
-from django.core.exceptions import ValidationError
 from django.db import models
-from django.template import Context, Template as DjangoTemplate
-from django_better_admin_arrayfield.models.fields import ArrayField
 from simple_history.models import HistoricalRecords
 
 from apps.bases.models import BaseModel
-from utils.fields import ActiveField
+from utils.fields import ActiveField, ChoiceField
+from .. import helpers
+from ...integrations.klaviyo.models import KlaviyoEvent
+from ...integrations.whatsapp.models import WhatsAppTemplate
 
 
 class Template(BaseModel):
+    class VendorType(str):
+        def __new__(cls, string, helper=None):
+            self = str.__new__(cls, string)
+            self.helper = helper
+            return self
+
+    class Vendors(VendorType, models.Choices):
+        klaviyo = 'klaviyo', helpers.KlaviyoTemplateHelper
+        whatsapp = 'whatsapp', helpers.WhatsAppTemplateHelper
+
     class Types(models.TextChoices):
-        mail = 'mail', _('Письмо')
-        sms = 'sms', _('SMS')
+        accounts_password_reset = 'accounts_password_reset', _('Восстановление пароля')
+        accounts_password_reset_otp = 'accounts_password_reset_otp', _('Восстановление пароля одноразовым кодом')
+        accounts_password_reset_magic_link = (
+            'accounts_password_reset_magic_link',
+            _('Восстановление пароля через magic link'),
+        )
+        accounts_email_confirm = 'accounts_email_confirm', _('Подтверждение адреса эл. почты')
 
     is_active = ActiveField()
-    subject = models.CharField(max_length=255, null=True, blank=True)
-    body = models.TextField()
-    sendgrid_template = models.ForeignKey('SendgridTemplate', models.SET_NULL, null=True, blank=True, limit_choices_to={
-        'is_active': True,
-    })
-    type = models.CharField(choices=Types.choices, max_length=20, default=Types.mail)
-    bcc_emails = ArrayField(base_field=models.CharField(max_length=40), null=True, blank=True)
+    vendor = ChoiceField(choices=Vendors.choices)
+    type = models.CharField(
+        max_length=50,
+        choices=Types.choices,
+    )
+
+    whatsapp_template = models.ForeignKey(WhatsAppTemplate, models.PROTECT, null=True, blank=True)
+    klaviyo_event = models.ForeignKey(KlaviyoEvent, models.PROTECT, null=True, blank=True)
 
     history = HistoricalRecords()
 
     class Meta:
-        verbose_name = _('Шаблон')
-        verbose_name_plural = _('Шаблоны')
+        ordering = ['type']
+        verbose_name = _('Шаблон письма')
+        verbose_name_plural = _('Шаблоны писем')
+        tracker_fields = ('klaviyo_event_id',)
+        unique_together = ('vendor', 'type')
 
     def __str__(self):
-        return f'({self.get_type_display()}) {self.get_subject()}' \
-               f'{f" (Sendgrid: {self.sendgrid_template.name})" if self.sendgrid_template_id else ""}'
+        return f'({self.get_vendor_display()}) {self.get_vendor_target()}'
+
+    @cached_property
+    def helper(self) -> helpers.BaseTemplateHelper:
+        return self.Vendors._value2member_map_[self.vendor].helper(self)
 
     def clean(self):
         super().clean()
-        if not self.sendgrid_template_id and not (self.subject and self.body):
-            raise ValidationError('Subject and body must be filled if sendgrid template is not used.')
+        self.helper.clean()
 
-    def format_subject(self, context):
-        t = DjangoTemplate(html.unescape(self.get_subject()))
-        return t.render(Context(context))
+    def save(self, *args, **kwargs):
+        self.helper.before_save()
+        super().save(*args, **kwargs)
 
-    def format_body(self, context={}):
-        template = DjangoTemplate(self.body)
-        return template.render(Context(context))
-
-    def get_subject(self):
-        return self.subject or (self.sendgrid_template.subject if self.sendgrid_template_id else '-')
-    get_subject.short_description = 'Subject'
-
-
-class SendgridTemplate(BaseModel):
-    template_id = models.CharField(max_length=255, primary_key=True)
-    name = models.CharField(max_length=255, editable=False)
-    active_version_id = models.CharField(max_length=255, null=True, editable=False)
-    subject = models.CharField(max_length=255, null=True, editable=False)
-    preview_url = models.URLField(null=True, editable=False)
-    is_active = ActiveField()
-
-    def __str__(self):
-        return f'{self.name} — {self.subject}{"(no active)" if not self.is_active else ""}'
+    def get_vendor_target(self):
+        return self.helper.target
+    get_vendor_target.short_description = 'Vendor target'
+    get_vendor_target.admin_order_field = 'Vendor target'

@@ -115,7 +115,7 @@ class serializer:
                  validator=None,
                  viewset=None,
                  swagger_schema=None,
-                 swagger_skip=False,
+                 skip_swagger=False,
                  response_status=status.HTTP_200_OK,
                  swagger_serializer_kwargs=None):
         self.viewset = viewset
@@ -124,14 +124,14 @@ class serializer:
         self.swagger_schema = swagger_schema or dict()
         self.swagger_serializer_kwargs = swagger_serializer_kwargs or dict()
         self.response_status = response_status
-        self.swagger_skip = swagger_skip
+        self.skip_swagger = skip_swagger
 
     _default_methods_mapping = {
         'list': ['get'],
         'create': ['post'],
-        'update': ['put'],
-        'partial_update': ['patch'],
-        'destroy': ['delete']
+        'update': ['put', 'patch'],
+        'destroy': ['delete'],
+        'retrieve': ['get'],
     }
 
     def __call__(self, func):
@@ -139,15 +139,14 @@ class serializer:
         if mapping is None:
             mapping = self._default_methods_mapping[func.__name__]
 
-        if any(method in mapping for method in ['put', 'patch', 'post', 'delete']):
-            self.swagger_schema.setdefault('request_body', self.validator(**self.swagger_serializer_kwargs))
+        if not self.skip_swagger:
+            if set(mapping) & {'put', 'patch', 'post', 'delete'}:
+                self.swagger_schema.setdefault('request_body', self.validator(**self.swagger_serializer_kwargs))
 
-        if self.klass:
             self.swagger_schema.setdefault('responses', {
                 self.response_status: self.klass(**self.swagger_serializer_kwargs)
             })
 
-        if not self.swagger_skip:
             func = swagger_auto_schema(**self.swagger_schema)(func)
 
         func.serializer_class = self.klass

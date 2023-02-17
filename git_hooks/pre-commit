@@ -10,9 +10,7 @@ if [[ "$PY_FILES" != "" ]]; then
     echo
     echo "Changed Python files list: "
     echo "$PY_FILES" | xargs -I {} echo " -  {}"
-    echo "——————————————————————————————————————"
     echo
-    echo "Flake8 result:"
 
-    pipenv run flake8 --config flake8.ini ${PY_FILES}
+    poetry run flake8 --config flake8.ini ${PY_FILES}
 fi

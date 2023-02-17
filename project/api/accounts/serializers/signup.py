@@ -29,7 +29,7 @@ class SignUpSerializer(ModelSerializer):
         return self.create_token()
 
     def create_token(self):
-        return self.user.create_login_token_from_request(self._request, is_endless=True)
+        return self.user.login_from_request(self._request, is_endless=True)
 
     def validate_password(self, password):
         password_validation.validate_password(password)

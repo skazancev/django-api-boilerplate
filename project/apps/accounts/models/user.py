@@ -1,5 +1,6 @@
 from urllib import parse
 
+from django.contrib.auth import login as django_login
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, Group as DjangoGroup
 from django.contrib.postgres.fields import CIEmailField
@@ -10,8 +11,10 @@ from phonenumber_field.modelfields import PhoneNumberField
 from simple_history.models import HistoricalRecords
 
 from apps.accounts import signals
+from apps.accounts.tokens import user_token_generator
 from apps.bases.models import BaseModel
 from utils.fields import ActiveField
+from utils.urls import build_public_url
 
 
 class UserManager(BaseUserManager):
@@ -93,7 +96,16 @@ class User(BaseModel, AbstractBaseUser, PermissionsMixin):
     def pretty_email(self):
         return f'{self.name} <{self.email}>'
 
-    def create_login_token_from_request(self, request, is_endless=False):
+    def login_from_request(self, request, created=False, is_endless=False):
+        django_login(request, self)
+
+        if created:
+            signal = signals.user_signed_up
+        else:
+            signal = signals.user_logged_in
+
+        signal.send(sender=self.__class__, request=request, user=self)
+
         ip_address = get_client_ip(request)[0]
         user_agent = request.META['HTTP_USER_AGENT']
 
@@ -118,11 +130,23 @@ class User(BaseModel, AbstractBaseUser, PermissionsMixin):
             'uidb36': int_to_base36(self.id),
             'token': user_token_generator.make_token(self),
         }
-        password_reset_url = password_reset_by_token_url(**reset_url_kwargs)
         if next_url:
             kwargs['next'] = next_url
 
-        return password_reset_url + f'?{parse.urlencode(kwargs)}'
+        password_reset_url = password_reset_by_token_url(**reset_url_kwargs)
+        if kwargs:
+            password_reset_url += f'?{parse.urlencode(kwargs)}'
+
+        return password_reset_url
+
+    def get_magic_link(self, next_url='/', one_off=True, **kwargs):
+        magic_link_url = build_public_url('magic_link', kwargs={
+            'token': f'{int_to_base36(self.id)}-{user_token_generator.make_token(self, one_off=one_off)}'
+        })
+        if next_url:
+            kwargs['next'] = next_url
+
+        return magic_link_url + f'?{parse.urlencode(kwargs)}'
 
 
 class Group(DjangoGroup):

@@ -4,7 +4,7 @@ import os
 from celery import Celery
 from kombu.serialization import register
 
-from utils.models import JSONEncoder
+from utils.json import JSONEncoder
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
 

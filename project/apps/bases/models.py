@@ -3,18 +3,19 @@ from typing import Tuple
 from adminsortable.models import SortableMixin
 from django.core.exceptions import ValidationError, FieldDoesNotExist, ObjectDoesNotExist
 from django.db import models
-from django.urls import reverse
 from django.utils.safestring import mark_safe
-from model_utils import FieldTracker
 from model_utils.models import TimeStampedModel
 from slugify import slugify
 
 from utils.fields import OrderField, SlugField
+from utils.models import get_admin_url_for_obj
 from utils.signals import post_save_queryset
+from utils.cache import cached_method
+from utils.field_tracker import CustomFieldTracker
 from utils.urls import make_url_absolute
 
 
-class BaseQuerySet(models.QuerySet):
+class BaseQuerySetMixin:
     def active(self):
         try:
             return self.filter(**{self.model._meta.get_field('is_active').name: True})
@@ -39,6 +40,20 @@ class BaseQuerySet(models.QuerySet):
         post_save_queryset.send(sender=self.model, created=True, queryset=objs)
 
 
+class BaseQuerySet(BaseQuerySetMixin, models.QuerySet):
+    def annotate_last_history_record(self):
+        if not hasattr(self, 'history'):
+            return self
+
+        return self.prefetch_related(
+            models.Prefetch(
+                'history',
+                queryset=self.model.history.order_by('-history_date').first(),
+                to_attr='last_history_record'
+            )
+        )
+
+
 class BaseModelMeta(models.base.ModelBase):
     @staticmethod
     def _find_order_field(attrs, bases):
@@ -48,16 +63,23 @@ class BaseModelMeta(models.base.ModelBase):
         for base in bases:
             try:
                 return base._meta.get_field('order')
-            except FieldDoesNotExist:
+            except (FieldDoesNotExist, AttributeError):
                 continue
 
         return None
 
     def __new__(mcs, name, bases: Tuple[models.Model], attrs, **kwargs):
         meta = attrs.get('Meta')
-        if (not getattr(meta, 'abstract', False) and
-                not getattr(meta, 'proxy', False)):
-            attrs.setdefault('tracker', FieldTracker())
+        if hasattr(meta, 'tracker_fields') \
+                and not getattr(meta, 'abstract', False) \
+                and not getattr(meta, 'proxy', False):
+            if meta.tracker_fields == '*':
+                fields = None
+            else:
+                fields = meta.tracker_fields
+
+            attrs.setdefault('tracker', CustomFieldTracker(fields=fields))
+            delattr(meta, 'tracker_fields')
 
         apply_order = isinstance(mcs._find_order_field(attrs, bases), OrderField)
         if apply_order and SortableMixin not in bases:
@@ -82,13 +104,14 @@ class BaseModelMeta(models.base.ModelBase):
                 return getattr(self, field.name).admin_url_tag
             except ObjectDoesNotExist:
                 return ''
+
         method.short_description = field.verbose_name
 
         return method
 
 
 class BaseModel(TimeStampedModel, metaclass=BaseModelMeta):
-    tracker: FieldTracker
+    tracker: CustomFieldTracker
     _created: bool
     _metadata: dict
 
@@ -103,10 +126,16 @@ class BaseModel(TimeStampedModel, metaclass=BaseModelMeta):
         self._metadata = {}
 
     def __str__(self):
-        return ' '.join(filter(None, [f'{self._meta.verbose_name}#{self.pk}', str(self.str())]))
+        return ' '.join(filter(None, [f'{self.str_model_name()}#{self.pk}', str(self.str())]))
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}(pk={self.pk}, title={self.str()})'
 
     def str(self):
         return ''
+
+    def str_model_name(self):
+        return self._meta.verbose_name
 
     def save_slug(self):
         try:
@@ -143,7 +172,7 @@ class BaseModel(TimeStampedModel, metaclass=BaseModelMeta):
 
     @property
     def admin_url(self):
-        return reverse(f'admin:{self._meta.app_label}_{self._meta.model_name}_change', args=(self.id,))
+        return get_admin_url_for_obj(self, self.pk)
 
     @property
     def admin_url_tag(self):
@@ -168,17 +197,24 @@ class BaseModel(TimeStampedModel, metaclass=BaseModelMeta):
     def _history_user(self, value):
         self.update_metadata(user=value)
 
+    @cached_method
+    def get_last_history_record(self):
+        if hasattr(self, 'last_history_record'):
+            if self.last_history_record:
+                return self.last_history_record[0]
+            return None
+
+        elif hasattr(self, 'history'):
+            return self.history.order_by('-history_date').first()
+        return None
+
     @property
     def _change_reason(self):
         return self._metadata.get('history_change_reason')
 
     @_change_reason.setter
     def _change_reason(self, value):
-        return self.update_metadata(history_change_reason=value)
-
-    @property
-    def lastmod(self):
-        return self.modified
+        self.update_metadata(history_change_reason=value)
 
     @classmethod
     def get_seo_object(cls, **kwargs):

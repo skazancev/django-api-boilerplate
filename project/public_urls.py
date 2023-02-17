@@ -5,24 +5,13 @@ from django.contrib.sites.models import Site
 from django.http import HttpResponseNotFound
 from django.urls import reverse, path
 
+from utils.urls import build_public_url
 
 app_name = 'public'
 
 
 def http404_view(request, *args, **kwargs):  # pragma: no cover
     return HttpResponseNotFound()
-
-
-def get_base_url():
-    return f'{settings.BASE_URL_SCHEMA}://{Site.objects.get_current().domain}'
-
-
-def make_url_absolute(url):
-    return urllib.parse.urljoin(get_base_url(), url)
-
-
-def build_public_url(url_name, **kwargs):
-    return make_url_absolute(reverse(f'public:{url_name}', **kwargs))
 
 
 def password_reset_by_token_url(*, uidb36, token):
