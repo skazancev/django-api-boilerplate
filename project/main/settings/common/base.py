@@ -10,20 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
-import logging
-
-import environ
-
 from main.settings.common.env import env
 
 from utils.i18n import builtins_install
 
 builtins_install()
 
-ENVIRONMENT = env('ENVIRONMENT', default='development')
 COMPANY_NAME = env('COMPANY_NAME', default='Your company')
 
-BASE_DIR = environ.Path(__file__) - 1
 DOMAIN_NAMES = env.list('DOMAIN_NAMES', default=['example.org'])
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -73,16 +67,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.0/howto/static-files/
-
-STATIC_URL = env('STATIC_URL', default='/static/')
-STATIC_ROOT = str(BASE_DIR.path('static'))
-
-MEDIA_URL = env('MEDIA_URL', default='/media/')
-MEDIA_ROOT = str(BASE_DIR.path('media'))
 
 DYNAMIC_CHOICE_FIELD_OPTIONS_CACHE = env.int('DYNAMIC_CHOICE_FIELD_OPTIONS_CACHE', default=300)
 

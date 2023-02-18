@@ -23,7 +23,6 @@ class PasswordResetSerializer(Serializer):
     def save(self):
         send_password_reset_email.delay(
             user_id=self.user.id,
-            reset_type='token',
             next_url=self._request.GET.get('next'),
         )
 

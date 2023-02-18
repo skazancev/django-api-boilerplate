@@ -5,6 +5,7 @@ apps = [
     'utils',
     'accounts',
     'emails',
+    'webhooks',
 ]
 
 urlpatterns = [

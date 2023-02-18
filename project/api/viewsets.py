@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.settings import api_settings
 from rest_framework.viewsets import GenericViewSet as BaseGenericViewSet
 
 from api.serializers import Serializer
@@ -26,6 +27,10 @@ class BrowsableAPIRendererQuerySetFix(object):
 
 
 class GenericViewSet(BrowsableAPIRendererQuerySetFix, BaseGenericViewSet):
+    lookup_field = 'uid'
+    lookup_url_kwarg = 'uid'
+    serializer_class = Serializer
+
     def get_object(self):
         obj = super().get_object()
         if obj and hasattr(obj, 'update_metadata'):
@@ -58,7 +63,7 @@ class GenericViewSet(BrowsableAPIRendererQuerySetFix, BaseGenericViewSet):
             _serializer = self.get_serializer_class(validator=validator)
 
         kwargs['context'] = dict(
-            **kwargs.get('context', {}),
+            **(kwargs.get('context') or {}),
             **self.get_serializer_context(),
         )
 
@@ -79,20 +84,45 @@ class GenericViewSet(BrowsableAPIRendererQuerySetFix, BaseGenericViewSet):
 
         return _serializer
 
-    def response(self, instance=None, *args, **kwargs):
+    def response(self, instance=None, *args, directly=True, **kwargs):
         if instance is not None:
-            if isinstance(instance, (list, dict, tuple)):
+            if directly and isinstance(instance, (list, dict, tuple)):
                 kwargs.setdefault('data', instance)
             else:
-                _serializer = self.get_serializer(instance, serializer_class=kwargs.pop('serializer_class', None))
+                _serializer = self.get_serializer(
+                    instance,
+                    serializer_class=kwargs.pop('serializer_class', None),
+                    context=kwargs.pop('context', None),
+                )
                 kwargs.setdefault('data', _serializer.data)
 
         return Response(**kwargs)
 
     def response_list(self, instance, *args, **kwargs):
-        _serializer = self.get_serializer(instance, many=True, serializer_class=kwargs.pop('serializer_class', None))
+        _serializer = self.get_serializer(
+            instance,
+            many=True,
+            serializer_class=kwargs.pop('serializer_class', None),
+            context=kwargs.pop('context', None),
+        )
 
         return Response(data=_serializer.data, **kwargs)
+
+    def paginated_response_list(self, queryset, *args, **kwargs):
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            _serializer = self.get_serializer(page, many=True, serializer_class=kwargs.pop('serializer_class', None))
+            return self.get_paginated_response(_serializer.data)
+
+        _serializer = self.get_serializer(queryset, many=True, serializer_class=kwargs.pop('serializer_class', None))
+        return Response(_serializer.data)
+
+    def response_ok(self, **kwargs):
+        return Response({'status': 'ok'}, **kwargs)
+
+    def response_error(self, error_message: str, **kwargs):
+        kwargs.setdefault('status', 400)
+        return Response({api_settings.NON_FIELD_ERRORS_KEY: [error_message]}, **kwargs)
 
     def filter_queryset(self, queryset):
         if hasattr(self, 'filter_class'):

@@ -122,32 +122,6 @@ class User(BaseModel, AbstractBaseUser, PermissionsMixin):
 
         signals.password_changed.send(sender=self.__class__, user=self)
 
-    def get_reset_url(self, next_url='', **kwargs):
-        from public_urls import password_reset_by_token_url
-        from apps.accounts.tokens import user_token_generator
-
-        reset_url_kwargs = {
-            'uidb36': int_to_base36(self.id),
-            'token': user_token_generator.make_token(self),
-        }
-        if next_url:
-            kwargs['next'] = next_url
-
-        password_reset_url = password_reset_by_token_url(**reset_url_kwargs)
-        if kwargs:
-            password_reset_url += f'?{parse.urlencode(kwargs)}'
-
-        return password_reset_url
-
-    def get_magic_link(self, next_url='/', one_off=True, **kwargs):
-        magic_link_url = build_public_url('magic_link', kwargs={
-            'token': f'{int_to_base36(self.id)}-{user_token_generator.make_token(self, one_off=one_off)}'
-        })
-        if next_url:
-            kwargs['next'] = next_url
-
-        return magic_link_url + f'?{parse.urlencode(kwargs)}'
-
 
 class Group(DjangoGroup):
     class Meta:

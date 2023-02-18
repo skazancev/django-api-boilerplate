@@ -7,4 +7,5 @@ include(
     'database.py',
     'templates.py',
     'apps.py',
+    'static_and_media.py',
 )

@@ -22,6 +22,7 @@ INSTALLED_APPS = [
 
     'api',
     'apps.core.apps.CoreConfig',
+    'apps.webhooks.apps.WebhooksConfig',
     'apps.accounts.apps.AccountsConfig',
     'apps.communication.apps.CommunicationConfig',
     'apps.integrations.klaviyo.apps.KlaviyoConfig',

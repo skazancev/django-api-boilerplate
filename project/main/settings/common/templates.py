@@ -1,4 +1,4 @@
-from main.settings.common.base import BASE_DIR
+from main.settings.common.env import BASE_DIR
 
 
 TEMPLATES = [
