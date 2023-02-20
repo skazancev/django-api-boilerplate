@@ -34,6 +34,7 @@ slackclient = "*"
 flake8 = "*"
 django-split-settings = "^1.2.0"
 klaviyo = "^3.1.6"
+django-admin-black = "^1.0.0"
 
 [tool.poetry.dev-dependencies]
 django-debug-toolbar = "*"

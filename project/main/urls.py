@@ -30,6 +30,9 @@ urlpatterns = [
     path('s/ckeditor/', include('ckeditor_uploader.urls')),
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
+    path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),  # Django JET dashboard URLS
+    path('jet/', include('jet.urls', 'jet')),  # Django JET URLS
+    path('jet_api/', include('jet_django.urls')),
     path('', include('public_urls', namespace='public')),
 ]
 

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
-from django.contrib.auth.forms import UserChangeForm as BaseUserChangeForm, ReadOnlyPasswordHashField
+from django.contrib.auth.forms import UserCreationForm as BaseUserCreationForm
 from django.contrib.auth.models import Group as DjangoGroup
 from django.contrib.admin.sites import site as default_site
 
@@ -9,13 +9,15 @@ from apps.bases.admin import BaseAdmin
 from utils.simple_history import CustomSimpleHistoryAdmin
 
 
-class UserChangeForm(BaseUserChangeForm):
-    password_reset_request = ReadOnlyPasswordHashField()
+class UserCreationForm(BaseUserCreationForm):
+    class Meta:
+        model = User
+        fields = ('email',)
 
 
 @admin.register(User)
 class UserAdmin(CustomSimpleHistoryAdmin, DjangoUserAdmin, BaseAdmin):
-    form = UserChangeForm
+    add_form = UserCreationForm
     fieldsets = (
         (None, {'fields': ('email', 'phone', 'password', 'first_name', 'last_name', 'whatsapp_enabled')}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_email_verified', 'is_superuser',

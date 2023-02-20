@@ -1,5 +1,7 @@
 # Application definition
 INSTALLED_APPS = [
+    'jet.dashboard',
+    'jet',
     'apps.AdminConfig',  # replaces 'django.contrib.admin'
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -19,6 +21,7 @@ INSTALLED_APPS = [
     'django_better_admin_arrayfield',
     'simple_history',
     'phonenumber_field',
+    'jet_django',
 
     'api',
     'apps.core.apps.CoreConfig',
