@@ -1,9 +1,9 @@
 from typing import List
 
-from project.apps.facebook.whatsapp.models import WhatsAppTemplate, WhatsAppTemplateVersion, WhatsAppPhoneNumber
+from apps.integrations.whatsapp.models import WhatsAppTemplate, WhatsAppTemplateVersion, WhatsAppPhoneNumber
 from celeryapp.app import app
 from clients.facebook import WhatsAppClient
-from project.utils.dict import Dict
+from utils.core import Dict
 
 
 @app.task

@@ -1,4 +1,4 @@
-from project.apps.facebook.whatsapp.models import WhatsAppPhoneNumber
+from apps.integrations.whatsapp.models import WhatsAppPhoneNumber
 
 
 def get_default_phone_number() -> WhatsAppPhoneNumber:

@@ -5,8 +5,8 @@ from django.conf import settings
 from phonenumber_field.phonenumber import PhoneNumber
 
 from apps.core.models import Config
-from project.apps.facebook.whatsapp.models import WhatsAppPhoneNumber
-from project.apps.facebook.whatsapp.services import get_default_phone_number
+from apps.integrations.whatsapp.models import WhatsAppPhoneNumber
+from apps.integrations.whatsapp.services import get_default_phone_number
 from utils.core import recursive_get, Dict
 
 
@@ -53,7 +53,7 @@ class WhatsAppMessageReceiver:
         from_phone_number=None,
         message=None,
         template_name=None,
-        template_language='ru',
+        template_language=settings.WHATSAPP_DEFAULT_LANGUAGE,
         template_head_parameters=None,
         template_body_parameters=None,
         template_footer_parameters=None,
@@ -139,7 +139,7 @@ class WhatsAppClient:
         return f'{Config.get(Config.Type.whatsapp_business_account_id)}{path}'
 
     def send_message(self, receiver: WhatsAppMessageReceiver):
-        if receiver.phone_number == 'invalid':
+        if receiver.phone_number is None:
             raise WhatsAppError({'status': 'not sent'})
 
         return self.send_request(

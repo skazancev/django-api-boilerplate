@@ -17,7 +17,7 @@ class UserChangeForm(BaseUserChangeForm):
 class UserAdmin(CustomSimpleHistoryAdmin, DjangoUserAdmin, BaseAdmin):
     form = UserChangeForm
     fieldsets = (
-        (None, {'fields': ('email', 'password', 'first_name', 'last_name')}),
+        (None, {'fields': ('email', 'phone', 'password', 'first_name', 'last_name', 'whatsapp_enabled')}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_email_verified', 'is_superuser',
                                        'groups', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'created')}),
@@ -25,7 +25,7 @@ class UserAdmin(CustomSimpleHistoryAdmin, DjangoUserAdmin, BaseAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'password1', 'password2'),
+            'fields': ('email', 'phone', 'password1', 'password2'),
         }),
     )
 
@@ -33,7 +33,7 @@ class UserAdmin(CustomSimpleHistoryAdmin, DjangoUserAdmin, BaseAdmin):
     search_fields = ('email', 'first_name', 'last_name')
     list_filter = ('is_email_verified', 'is_active', 'is_staff')
     ordering = ('-is_superuser', 'email')
-    readonly_fields = ('last_login', 'created')
+    readonly_fields = ('last_login', 'created', 'whatsapp_enabled')
 
 
 class GroupAdmin(admin.ModelAdmin):

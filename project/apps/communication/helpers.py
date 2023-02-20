@@ -1,9 +1,11 @@
 from typing import List, TYPE_CHECKING
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
 
 from apps.integrations.klaviyo.tasks import create_klaviyo_event, klaviyo_send_communication
+from apps.webhooks.tasks import send_whatsapp_message
 from utils.cache import cached_method
 
 if TYPE_CHECKING:
@@ -57,7 +59,9 @@ class WhatsAppTemplateHelper(BaseTemplateHelper):
 
     @cached_method
     def get_version(self, user=None):
-        if template := self.template.whatsapp_template.versions.filter(language='en_US').first():
+        if template := self.template.whatsapp_template.versions.filter(
+                language=settings.WHATSAPP_DEFAULT_LANGUAGE
+        ).first():
             return template
         return self.template.whatsapp_template.versions.first()
 
@@ -73,6 +77,5 @@ class WhatsAppTemplateHelper(BaseTemplateHelper):
             raise ValidationError('WhatsApp template is required for selected vendor')
 
     def send(self, communications: List['CommunicationHistory'], **kwargs):
-        from project.apps.emails.tasks import send_whatsapp_message
         for communication in communications:
             send_whatsapp_message.delay(communication.id, self.get_version(communication.user).id)

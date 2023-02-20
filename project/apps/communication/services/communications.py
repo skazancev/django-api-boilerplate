@@ -7,12 +7,9 @@ from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 
 from apps.communication.models import Template, CommunicationHistory
-from apps.integrations.slack.tasks import send_slack_msg
-from celeryapp.app import app
 from utils.core import clean_data
 from utils.urls import get_base_url
 from .. import model_serializers as serializers
-
 
 User = get_user_model()
 
@@ -97,18 +94,3 @@ def generate(*,
 
 def generate_hash(data: dict, remove_fields=None):
     return json.dumps(clean_data(copy.deepcopy(data), remove_fields=remove_fields, replace_with='-'))
-
-
-@app.task
-def send_templated_message(template_type, **kwargs):
-    if not (templates := Template.objects.active().filter(type=template_type)):
-        send_slack_msg.delay('qa-notifications', f'<!channel> Template was not found: `{template_type}`')
-        return
-
-    communications = list()
-    for template in templates:
-        if communication := generate(template=template, **kwargs):
-            CommunicationHistory.send(communication)
-            communications.append(communication.id)
-
-    return communications

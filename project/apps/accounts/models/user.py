@@ -54,6 +54,8 @@ class User(BaseModel, AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_('Фамилия'))
     phone = PhoneNumberField(null=True, blank=False, verbose_name=_('Номер телефона'))
 
+    whatsapp_enabled = models.BooleanField(null=True, blank=True, editable=False)
+
     is_active = ActiveField()
     is_email_verified = models.BooleanField(default=False, verbose_name=_('Подтвержденный адрес эл. почты?'))
     is_staff = models.BooleanField(default=False, verbose_name=_('Статус персонала'))
