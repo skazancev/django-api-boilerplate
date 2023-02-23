@@ -1,9 +1,7 @@
-from adminsortable.admin import SortableAdmin
 from django.contrib import admin
 from django.contrib.postgres.fields import JSONField
 from django.db import transaction
 from django.utils import timezone
-from django.utils.safestring import mark_safe
 from django_json_widget.widgets import JSONEditorWidget
 from simple_history.admin import SimpleHistoryAdmin
 
@@ -43,6 +41,7 @@ class CommunicationHistoryAdmin(BaseAdmin):
         'type',
         'created',
         'sent',
+        'user_email',
     )
     search_fields = ('user__email', 'agent__email')
     list_filter = ('direction', 'target', 'type', 'agent', 'sent')
@@ -74,6 +73,9 @@ class CommunicationHistoryAdmin(BaseAdmin):
             context = clean_data(context, replace_with='•••')
 
         return pretty_typeform(context)
+
+    def user_email(self, obj):
+        return obj.user.email
 
 
 @admin.register(models.Template)

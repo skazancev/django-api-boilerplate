@@ -22,17 +22,16 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
-from apps.bases.admin import admin_site
+from apps.bases.admin import admin_site, api_admin_site
 
 urlpatterns = [
     path('admin/', admin_site.urls),
     path('api/', include('api.urls', namespace='api')),
+    path('api_admin/', api_admin_site.urls),
     path('s/ckeditor/', include('ckeditor_uploader.urls')),
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
-    path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),  # Django JET dashboard URLS
-    path('jet/', include('jet.urls', 'jet')),  # Django JET URLS
-    path('jet_api/', include('jet_django.urls')),
+
     path('', include('public_urls', namespace='public')),
 ]
 

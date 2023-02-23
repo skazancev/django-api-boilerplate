@@ -1,9 +1,5 @@
-import urllib.parse
-
-from django.conf import settings
-from django.contrib.sites.models import Site
 from django.http import HttpResponseNotFound
-from django.urls import reverse, path
+from django.urls import path
 
 from utils.urls import build_public_url
 

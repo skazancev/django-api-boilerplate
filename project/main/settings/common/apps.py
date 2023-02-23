@@ -1,7 +1,8 @@
 # Application definition
 INSTALLED_APPS = [
-    'jet.dashboard',
-    'jet',
+    'admin_interface',
+    'colorfield',
+
     'apps.AdminConfig',  # replaces 'django.contrib.admin'
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -21,7 +22,7 @@ INSTALLED_APPS = [
     'django_better_admin_arrayfield',
     'simple_history',
     'phonenumber_field',
-    'jet_django',
+    'django_api_admin',
 
     'api',
     'apps.core.apps.CoreConfig',
@@ -31,3 +32,5 @@ INSTALLED_APPS = [
     'apps.integrations.klaviyo.apps.KlaviyoConfig',
     'apps.integrations.whatsapp.apps.WhatsAppConfig',
 ]
+
+# TABBED_ADMIN_USE_JQUERY_UI = True
