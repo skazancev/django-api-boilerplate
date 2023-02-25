@@ -2,7 +2,8 @@ from django.conf import settings
 from django.contrib import admin
 from django.core.exceptions import FieldDoesNotExist
 
-from apps.bases.admin_drf import api_admin_site, APIModelAdmin
+from api.admin.viewsets import APIModelAdminViewSet
+from apps.bases.admin_drf import api_admin_site
 
 
 class AdminSite(admin.AdminSite):
@@ -17,7 +18,7 @@ class AdminSite(admin.AdminSite):
             model_or_iterable,
             admin_class=type(
                 f'API{admin_class.__name__}',
-                (APIModelAdmin, admin_class),
+                (APIModelAdminViewSet, admin_class),
                 options
             ) if admin_class else None,
         )

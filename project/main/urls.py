@@ -26,8 +26,8 @@ from apps.bases.admin import admin_site, api_admin_site
 
 urlpatterns = [
     path('admin/', admin_site.urls),
+    path('api/admin/', api_admin_site.urls),
     path('api/', include('api.urls', namespace='api')),
-    path('api_admin/', api_admin_site.urls),
     path('s/ckeditor/', include('ckeditor_uploader.urls')),
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),

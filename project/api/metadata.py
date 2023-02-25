@@ -11,7 +11,6 @@ class SimpleMetadata(BaseMetadata):
         For generic class based views we return information about
         the fields that are accepted for 'PUT' and 'POST' methods.
         """
-        print('here')
         actions = {}
         for method in {'PUT', 'POST'} & set(view.allowed_methods):
             view.request = clone_request(request, method)

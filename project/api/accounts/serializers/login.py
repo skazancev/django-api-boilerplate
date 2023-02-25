@@ -28,7 +28,7 @@ class LoginSerializer(Serializer):
 
 
 class UserSerializer(ModelSerializer):
-    name = serializers.CharField()
+    name = serializers.SerializerMethodField()
 
     class Meta:
         model = get_user_model()
@@ -38,6 +38,9 @@ class UserSerializer(ModelSerializer):
             'name',
         )
         read_only_fields = ('email',)
+
+    def get_name(self, obj):
+        return obj.name or 'No name'
 
 
 class TokenSerializer(ModelSerializer):
