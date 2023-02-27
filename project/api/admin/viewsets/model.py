@@ -50,6 +50,10 @@ class APIModelAdminViewSet(BaseAPIModelAdmin):
     def change_view(self, request, object_id, **kwargs):  # done
         return super().change_view(request, object_id, **kwargs)
 
+    # add field type support
+    def changelist_view(self, request, **kwargs):  # done
+        return super().changelist_view(request, **kwargs)
+
     # fix config (replace fieldsets with get_fieldsets)
     def add_view(self, request, **kwargs):  # done
         return super().add_view(request, **kwargs)
