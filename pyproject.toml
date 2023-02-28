@@ -35,7 +35,6 @@ flake8 = "*"
 django-split-settings = "*"
 klaviyo = "*"
 django-admin-interface = "*"
-django-api-admin = "^1.0.3"
 
 [tool.poetry.dev-dependencies]
 django-debug-toolbar = "*"

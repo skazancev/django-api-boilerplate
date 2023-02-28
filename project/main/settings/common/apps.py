@@ -22,7 +22,6 @@ INSTALLED_APPS = [
     'django_better_admin_arrayfield',
     'simple_history',
     'phonenumber_field',
-    'django_api_admin',
 
     'api',
     'apps.core.apps.CoreConfig',

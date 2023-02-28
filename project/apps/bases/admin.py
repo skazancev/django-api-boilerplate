@@ -2,13 +2,13 @@ from django.conf import settings
 from django.contrib import admin
 from django.core.exceptions import FieldDoesNotExist
 
-from api.admin.viewsets import APIModelAdminViewSet
-from apps.bases.admin_drf import api_admin_site
+from api_admin.options import APIModelAdmin
+from api_admin.sites import api_admin_site
 
 
 class AdminSite(admin.AdminSite):
-    site_title = 'Project name'
-    site_header = f'Project name — {settings.ENVIRONMENT}'
+    site_title = settings.COMPANY_NAME
+    site_header = f'{settings.COMPANY_NAME} — {settings.ENVIRONMENT}'
     index_title = 'Администрирование'
     enable_nav_sidebar = False
 
@@ -18,7 +18,7 @@ class AdminSite(admin.AdminSite):
             model_or_iterable,
             admin_class=type(
                 f'API{admin_class.__name__}',
-                (APIModelAdminViewSet, admin_class),
+                (APIModelAdmin, admin_class),
                 options
             ) if admin_class else None,
         )
@@ -39,7 +39,7 @@ class BaseAdmin(admin.ModelAdmin):
         return prepopulated_fields
 
 
-admin_site = AdminSite(name='Boilerplate Admin')
+admin_site = AdminSite(name=settings.COMPANY_NAME)
 
 admin.site = admin_site
 admin.sites.site = admin_site

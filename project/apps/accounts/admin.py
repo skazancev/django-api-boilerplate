@@ -26,7 +26,7 @@ class UserAdmin(CustomSimpleHistoryAdmin, DjangoUserAdmin, BaseAdmin):
     add_form = UserCreationForm
     fieldsets = (
         (None, {
-            'fields': ('email', 'phone', 'password', 'first_name', 'last_name', 'whatsapp_enabled')
+            'fields': ('phone', 'email', 'password', 'first_name', 'last_name', 'whatsapp_enabled')
         }),
         (_('Permissions'), {
             "classes": ("wide",),

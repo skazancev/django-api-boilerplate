@@ -578,21 +578,6 @@ files = [
 django = "*"
 
 [[package]]
-name = "django-api-admin"
-version = "1.0.3"
-description = "Expose django.contrib.admin as a restful service. useful for adding new features to django admin or writing a new admin."
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "django-api-admin-1.0.3.tar.gz", hash = "sha256:4758e72228571677918adfda452ad5b984a5eb266756b3d8c03ab07715b6731b"},
-]
-
-[package.dependencies]
-django = "*"
-djangorestframework = "*"
-
-[[package]]
 name = "django-better-admin-arrayfield"
 version = "1.4.2"
 description = "Better ArrayField widget for admin"
@@ -2449,4 +2434,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "52af9339158c43bc9e24a21972c305e4b3abc5c1fa453d4cd9f9a8c03edcaca4"
+content-hash = "6880e2a23562fc41b743a6e66ce11e399a7740eb488532d8829553e61aef3ce2"

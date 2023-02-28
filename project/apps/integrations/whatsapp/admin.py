@@ -6,15 +6,16 @@ from apps.integrations.whatsapp.models import WhatsAppTemplate, WhatsAppTemplate
 
 class WhatsAppTemplateVersionInline(admin.StackedInline):
     model = WhatsAppTemplateVersion
+    extra = 1
 
-    def has_add_permission(self, request, obj=None):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        return False
+    # def has_add_permission(self, request, obj=None):
+    #     return False
+    #
+    # def has_delete_permission(self, request, obj=None):
+    #     return False
+    #
+    # def has_change_permission(self, request, obj=None):
+    #     return False
 
 
 @admin.register(WhatsAppTemplate)

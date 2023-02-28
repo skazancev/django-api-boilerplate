@@ -1,13 +1,13 @@
 from rest_framework import serializers
 
-from api.accounts.serializers import UserSerializer
+from api.accounts.serializers import UserSerializer as BaseUserSerializer
 
 
-class AdminUserSerializer(UserSerializer):
+class UserSerializer(BaseUserSerializer):
     group = serializers.SerializerMethodField()
 
-    class Meta(UserSerializer.Meta):
-        fields = UserSerializer.Meta.fields + ('group',)
+    class Meta(BaseUserSerializer.Meta):
+        fields = BaseUserSerializer.Meta.fields + ('group',)
 
     def get_group(self, obj):
         if obj.is_superuser:
