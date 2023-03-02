@@ -2,7 +2,7 @@ from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField
 from django.db import models
 
-from project.apps.bases.models import BaseModel
+from apps.bases.models import BaseModel
 from utils.core import Dict
 
 

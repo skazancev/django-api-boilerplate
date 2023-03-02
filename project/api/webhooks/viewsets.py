@@ -11,7 +11,7 @@ from rest_framework.response import Response
 
 from api.webhooks import clients
 from apps.webhooks.models import WebhookData
-from project.api.utils.viewsets import GenericViewSet
+from api.utils.viewsets import GenericViewSet
 
 
 @method_decorator(transaction.non_atomic_requests, name='dispatch')
