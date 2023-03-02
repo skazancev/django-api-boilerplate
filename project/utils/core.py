@@ -62,6 +62,10 @@ class Dict(dict):
             return [cls.convert(i) for i in data]
         return data
 
+    def get(self, item, default=None):
+        value = super().get(item, default)
+        return self.convert(value)
+
     def __getattr__(self, item):
         value = self.get(item)
         return self.convert(value)

@@ -1,7 +1,7 @@
 from .slack import SlackBotClient
-from .facebook import WhatsappClient
+from .facebook import WhatsAppClient
 
 __all__ = [
     'SlackBotClient',
-    'WhatsappClient',
+    'WhatsAppClient',
 ]

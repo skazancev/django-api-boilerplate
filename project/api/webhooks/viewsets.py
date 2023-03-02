@@ -38,7 +38,7 @@ class WebhookViewSet(GenericViewSet):
             data = request.GET.dict()
         else:
             data = request.data
-        response = clients.WhatsappClient(
+        response = clients.WhatsAppClient(
             self.save_webhook(WebhookData.Sources.facebook_whatsapp, payload=data)
         ).process()
         return Response(response)

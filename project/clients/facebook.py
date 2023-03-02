@@ -2,12 +2,14 @@ import json
 
 import requests
 from django.conf import settings
+from django.utils import timezone
 from phonenumber_field.phonenumber import PhoneNumber
 
 from apps.core.models import Config
-from apps.integrations.whatsapp.models import WhatsAppPhoneNumber
+from apps.integrations.whatsapp.models import WhatsAppPhoneNumber, WhatsAppMessage
 from apps.integrations.whatsapp.services import get_default_phone_number
 from utils.core import recursive_get, Dict
+from utils.files import download_from_url
 
 
 class WhatsAppError(Exception):
@@ -62,6 +64,7 @@ class WhatsAppMessageReceiver:
             phone_number = phone_number.as_e164[1:]  # cut + from the beginning of the phone number
 
         self.phone_number = phone_number
+        self.wa_number = WhatsAppPhoneNumber.objects.filter(vendor_id=phone_number).first()
         self.message = message
         self.template_name = template_name
         self.type = self.TYPE_TEMPLATE if template_name else self.TYPE_TEXT
@@ -116,9 +119,25 @@ class WhatsAppMessageReceiver:
 
         return payload
 
+    def save_message(self, response: Dict):
+        for message in response.messages:
+            to_number = self.wa_number
+            if not to_number:
+                to_number = WhatsAppPhoneNumber.objects.create(vendor_id=response.contacts[0].wa_id)
+
+            WhatsAppMessage.objects.create(
+                business_account_id=Config.get(Config.Type.whatsapp_business_account_id),
+                vendor_id=message.id,
+                from_number=self.from_phone_number,
+                to_number=to_number,
+                type=self.type,
+                date=timezone.now(),
+                text=self.message or self.template_name,
+            )
+
 
 class WhatsAppClient:
-    api_version = 'v15.0'
+    api_version = 'v16.0'
 
     def send_request(self, method, http_method='GET', **kwargs):
         url = f'https://graph.facebook.com/{self.api_version}/{method}'
@@ -142,11 +161,13 @@ class WhatsAppClient:
         if receiver.phone_number is None:
             raise WhatsAppError({'status': 'not sent'})
 
-        return self.send_request(
+        response = self.send_request(
             f'{receiver.from_phone_number.vendor_id}/messages',
             http_method='POST',
             json=receiver.get_request_payload()
         )
+        receiver.save_message(response)
+        return response
 
     def retrieve_all_paging_data(self, method, **kwargs):
         response: Dict = method(**kwargs)
@@ -169,4 +190,21 @@ class WhatsAppClient:
             self.build_business_account_url('/phone_numbers'),
             http_method='GET',
             params=params,
+        )
+
+    def download_media(self, media_id):
+        response = self.send_request(
+            method=f'{media_id}/',
+        )
+        return download_from_url(response['url'], )
+
+    def mark_message_as_read(self, business_phone_number, message_id):
+        return self.send_request(
+            method=f'{business_phone_number}/messages',
+            http_method='POST',
+            json={
+                'messaging_product': 'whatsapp',
+                'status': 'read',
+                'message_id': message_id,
+            }
         )

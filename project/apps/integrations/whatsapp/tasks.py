@@ -43,5 +43,6 @@ def update_whatsapp_phone_numbers():
             defaults=dict(
                 name=number.verified_name,
                 display=number.display_phone_number,
+                type=WhatsAppPhoneNumber.Type.system,
             )
         )

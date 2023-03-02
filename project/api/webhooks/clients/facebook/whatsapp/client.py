@@ -1,9 +1,13 @@
+from functools import cached_property
+
 from django.conf import settings
 
 from api.webhooks.clients.base import BaseClient
+from api.webhooks.clients.facebook.whatsapp.mixins import BusinessAccountMixin
+from clients import WhatsAppClient as WhatsAppAPIClient
 
 
-class WhatsappClient(BaseClient):
+class WhatsAppClient(BusinessAccountMixin, BaseClient):
     def process_type(self):
         return self.content.get('hub.mode') or self.content.object
 
@@ -12,5 +16,6 @@ class WhatsappClient(BaseClient):
             return int(self.content['hub.challenge'])
         return None
 
-    def whatsapp_business_account(self):
-        print(self.content)
+    @cached_property
+    def _api_client(self):
+        return WhatsAppAPIClient()
