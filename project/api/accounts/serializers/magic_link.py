@@ -13,8 +13,8 @@ User = get_user_model()
 
 
 class MagicLinkSerializer(TokenValidationSerializer):
-    def validate_token(self, value, one_off=True):
-        return super().validate_token(value, one_off=False)
+    def validate_token(self, value):
+        return super().validate_token(value)
 
     def save(self, **kwargs):
         if admin_user := self._request.GET.get('admin_user'):

@@ -3,7 +3,7 @@ from urllib import parse
 from django.urls import reverse
 from django.utils.http import int_to_base36
 
-from public_urls import password_reset_by_token_url
+from public.urls import password_reset_by_token_url
 from apps.accounts.tokens import user_token_generator
 from utils.urls import make_url_absolute
 

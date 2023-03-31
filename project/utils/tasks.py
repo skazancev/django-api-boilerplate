@@ -19,7 +19,3 @@ def get_object_with_logging(queryset, pk=None, **kwargs):
         logger.exception(_(f'None object was returned for model "{queryset.model.__name__}" with params {lookup}'))
 
     return obj
-
-
-class TaskError(Exception):
-    pass

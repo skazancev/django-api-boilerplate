@@ -4,8 +4,8 @@ from utils.i18n import builtins_install
 
 builtins_install()
 
-PROJECT_DIR = environ.Path(__file__) - 3
-BASE_DIR = environ.Path(__file__) - 4
+PROJECT_DIR = environ.Path(__file__) - 4
+BASE_DIR = environ.Path(__file__) - 5
 
 env = environ.Env()
 

@@ -24,7 +24,7 @@ DOMAIN_NAMES = env.list('DOMAIN_NAMES', default=['example.org'])
 SECRET_KEY = env('SECRET_KEY', default='secret_key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG')
+DEBUG = env.bool('DEBUG')
 BASE_URL_SCHEMA = env('BASE_URL_SCHEMA', default='http')
 ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['*'])
 ADMINS = [('Stanislav', 'stas.kazancev54@gmail.com'), ]

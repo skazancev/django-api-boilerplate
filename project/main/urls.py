@@ -32,7 +32,7 @@ urlpatterns = [
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
     path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
 
-    path('', include('public_urls', namespace='public')),
+    path('', include('public.urls', namespace='public')),
 ]
 
 if settings.DEBUG:

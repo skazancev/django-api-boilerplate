@@ -1,11 +1,10 @@
-from main.settings.common.env import BASE_DIR
-
+from main.settings.common.env import PROJECT_DIR
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            str(BASE_DIR.path('templates')),
+            str(PROJECT_DIR.path('templates')),
         ],
         'APP_DIRS': True,
         'OPTIONS': {

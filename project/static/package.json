@@ -1,0 +1,9 @@
+{
+  "name": "project-name",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "jquery-ui": "^1.13.2"
+  }
+}

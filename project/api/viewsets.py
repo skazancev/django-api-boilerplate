@@ -75,7 +75,10 @@ class GenericViewSet(BrowsableAPIRendererQuerySetFix, BaseGenericViewSet):
 
     def validate_request(self, request, *args, **kwargs):
         if isinstance(request, Request):
-            data = request.data
+            if request.method == 'GET':
+                data = request.GET.dict().copy()
+            else:
+                data = request.data
         else:
             data = request
 

@@ -1,8 +1,9 @@
 config.env
 docker.env
 *.sqlite3
-static
+/static
 media
 .idea
 *.pyc
 docker/volumes
+node_modules

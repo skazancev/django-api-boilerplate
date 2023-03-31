@@ -1,0 +1,87 @@
+version: '3.7'
+
+
+volumes:
+  conf:
+    name: ${PACKAGENAME}-conf
+  media:
+    name: ${PACKAGENAME}-media
+  static:
+    name: ${PACKAGENAME}-static
+  nginx-conf:
+    name: ${PACKAGENAME}-nginx-conf
+  nginx-logs:
+    name: ${PACKAGENAME}-nginx-logs
+  certbot-etc:
+    name: ${PACKAGENAME}-nginx-certbot-etc
+  certbot-var:
+    name: ${PACKAGENAME}-nginx-certbot-var
+  web-root:
+    name: ${PACKAGENAME}-web-root
+  dhparam:
+    name: ${PACKAGENAME}-dhparam
+
+networks:
+  network:
+    name: ${PACKAGENAME}
+    driver: bridge
+    ipam:
+      config:
+          - subnet: 172.27.0.0/16
+
+
+x-default:
+  &default
+  image: ${IMAGE}
+
+  volumes:
+    - static:/static
+    - media:/media
+    - conf:/code/conf
+  logging:
+    options:
+      max-size: "10m"
+      max-file: "5"
+  networks:
+    - network
+  restart: unless-stopped
+
+services:
+  web:
+    << : *default
+    container_name: ${PACKAGENAME}_web
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://0.0.0.0:8000/api/utils/health/"]
+      interval: 10s
+      timeout: 30s
+      retries: 20
+
+  celery:
+    << : *default
+    container_name: ${PACKAGENAME}_celery
+    command: celery -A celeryapp.app worker -B -l INFO -n celery@worker-main-01
+    healthcheck:
+      test: celery -A celeryapp.app inspect ping
+      interval: 10s
+      timeout: 30s
+      retries: 20
+
+  nginx:
+    restart: unless-stopped
+    image: nginx:latest
+    volumes:
+      - nginx-conf:/etc/nginx/conf.d
+      - media:/media
+      - static:/static
+      - web-root:/var/www/html
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - dhparam:/etc/ssl/certs
+      - nginx-logs:/logs
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - network
+    depends_on:
+      - web

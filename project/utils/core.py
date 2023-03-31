@@ -39,11 +39,9 @@ def recursive_get(d, *keys, default=None):
 
 
 @contextmanager
-def override_attribute(obj, attr_name, value, apply=True):
+def override_attribute(obj, attr_name, value):
     old_value = getattr(obj, attr_name, Empty())
-
-    if apply:
-        setattr(obj, attr_name, value)
+    setattr(obj, attr_name, value)
 
     yield
 

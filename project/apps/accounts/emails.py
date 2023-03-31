@@ -5,7 +5,7 @@ from django.utils.http import int_to_base36
 
 from apps.communication.models import Template, CommunicationHistory
 from apps.communication.tasks import send_templated_message
-from public_urls import account_email_confirm_url
+from public.urls import account_email_confirm_url
 from utils.tasks import get_object_with_logging
 from apps.accounts.services import auth as auth_service
 

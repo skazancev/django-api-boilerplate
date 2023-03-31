@@ -1,9 +1,13 @@
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core import checks
 from django.db import models
 from django.db.models import BLANK_CHOICE_DASH
+from django.db.models.fields.files import FieldFile
+from django.urls import reverse
 
 from utils.cache import custom_lru_cache
+from utils.storages import PrivateFileSystemStorage
 from utils.timezone import round_time
 
 
@@ -85,7 +89,7 @@ class ChoiceField(models.CharField):
         super().__init__(choices=choices, *args, **kwargs)
 
     @staticmethod
-    def is_value_method(name, value):
+    def _is_FIELD_VALUE(name, value):
         @property
         def method(self):
             return getattr(self, name) == value
@@ -94,5 +98,43 @@ class ChoiceField(models.CharField):
 
     def contribute_to_class(self, cls, name, *args, **kwargs):
         for code, label in self.choices:
-            setattr(cls, f'is_{name}_{code}', self.is_value_method(name, code))
+            setattr(cls, f'is_{name}_{code}', self._is_FIELD_VALUE(name, code))
         super().contribute_to_class(cls, name, *args, **kwargs)
+
+
+class PrivateFieldFile(FieldFile):
+    @property
+    def url(self):
+        return reverse(
+            'public:system:private_file',
+            args=(
+                ContentType.objects.get_for_model(self.instance).id,
+                self.instance.pk,
+                self.field.name,
+                self.filename,
+            )
+        )
+
+    @property
+    def real_url(self):
+        return super().url
+
+    @property
+    def filename(self):
+        return self.name.rsplit('/', maxsplit=1)[-1]
+
+
+class PrivateFileField(models.FileField):
+    """
+    nginx config example:
+    location /media/private {
+        internal;
+        alias /path/to/media/private/;
+        expires 7d;
+    }
+    """
+    attr_class = PrivateFieldFile
+
+    def __init__(self, storage=None, **kwargs):
+        storage = PrivateFileSystemStorage()
+        super().__init__(storage=storage, **kwargs)
